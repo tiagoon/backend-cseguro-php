@@ -58,11 +58,36 @@ class Users extends Controller {
 
    public function update($id)
    {
-      echo json_encode(['message' => 'Em Breve'], JSON_UNESCAPED_UNICODE);
+      $data = $this->getRequestBody();
+
+      $userModel              = $this->model('User');
+      $userModel->name        = $data->name;
+      $userModel->email       = $data->email;
+      $userModel->phone       = $data->phone;
+      $userModel->birthday    = $data->birthday;
+      $userModel->cityName    = $data->city_name;
+
+      $userModel->update($id);
+
+      if ($userModel) {
+         http_response_code(200);
+         echo json_encode(['message' => 'Atualizado com sucesso']);
+      } else {
+         http_response_code(500);
+         echo json_encode(['message' => 'Erro ao atualizar usuário']);
+      }
    }
 
    public function delete($id)
    {
-      echo json_encode(['message' => 'Em Breve'], JSON_UNESCAPED_UNICODE);
+      $userModel = $this->model('User');
+      $user = $userModel->destroy($id);
+
+      if (!$user) {
+         http_response_code(404);
+         echo json_encode(['message' => 'Não foi possível excluir'], JSON_UNESCAPED_UNICODE);
+      } else {
+         echo json_encode(['message' => 'Usuário excluído com sucesso.'], JSON_UNESCAPED_UNICODE);
+      }
    }
 }

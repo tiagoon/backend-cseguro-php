@@ -90,35 +90,35 @@ class User {
    {
       $sql = "UPDATE $this->table 
                      SET
-                        name       = :name, 
-                        email      = :email, 
-                        phone      = :phone, 
-                        birthday  = :birthday,
-                        city_name  = :city_name
+                        name      = ?, 
+                        email     = ?, 
+                        phone     = ?, 
+                        birthday  = ?,
+                        city_name = ?
                      WHERE 
-                        id = :id";
+                        id = ?";
    
       $stmt = Model::getConn()->prepare($sql);
    
       $this->name      = trim(strip_tags($this->name));
       $this->email     = trim(strip_tags($this->email));
-      $this->phone     = trim(strip_tags($this->phone));
+      $this->phone     = preg_replace('/[^0-9]/', '', $this->phone);
       $this->birthday  = trim(strip_tags($this->birthday));
       $this->cityName  = trim(strip_tags($this->cityName));
       
       // bind data
-      $stmt->bindParam(":name", $this->name);
-      $stmt->bindParam(":email", $this->email);
-      $stmt->bindParam(":phone", $this->phone);
-      $stmt->bindParam(":birthday", $this->birthday);
-      $stmt->bindParam(":city_name", $this->cityName);
-      $stmt->bindParam(":id", $id);
+      $stmt->bindParam(1, $this->name);
+      $stmt->bindParam(2, $this->email);
+      $stmt->bindParam(3, $this->phone);
+      $stmt->bindParam(4, $this->birthday);
+      $stmt->bindParam(5, $this->cityName);
+      $stmt->bindParam(6, $id);
    
       if($stmt->execute()){
          return true;
       }
 
-      return false;
+      return null;
    }
 
    //DELETE

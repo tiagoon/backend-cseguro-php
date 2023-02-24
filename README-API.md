@@ -68,6 +68,13 @@ curl --request GET \
   --url http://localhost:8001/users
 ```
 
+Buscar usuário
+
+```shell
+curl --request GET \
+  --url 'http://localhost:8001/users?query=claud&param=name'
+```
+
 Criar usuário
 
 ```shell
