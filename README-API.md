@@ -19,6 +19,7 @@ curl --request GET \
 ```
 
 Cadastrar empresa
+
 ```shell
 curl --request POST \
   --url http://localhost:8001/companies \
@@ -30,7 +31,15 @@ curl --request POST \
 }'
 ```
 
+Mostrar empresa (id)
+
+```shell
+curl --request GET \
+  --url http://localhost:8001/companies/2
+```
+
 Atualizar empresa
+
 ```shell
 curl --request PUT \
   --url http://localhost:8001/companies/2 \
@@ -43,6 +52,7 @@ curl --request PUT \
 ```
 
 Excluir empresa 
+
 ```shell
 curl --request DELETE \
   --url http://localhost:8001/companies/4
@@ -59,6 +69,7 @@ curl --request GET \
 ```
 
 Criar usuário
+
 ```shell
 curl --request POST \
   --url http://localhost:8001/users \
@@ -72,18 +83,15 @@ curl --request POST \
 }'
 ```
 
-Vincular usuário a uma empresa
+Mostrar usuário (id)
+
 ```shell
-curl --request POST \
-  --url http://localhost:8001/userCompanies \
-  --header 'Content-Type: application/json' \
-  --data '{
-	"user_id": 2,
-	"company_id": 1
-}'
+curl --request GET \
+  --url http://localhost:8001/users/1
 ```
 
 Atualizar um usuário
+
 ```shell
 curl --request PUT \
   --url http://localhost:8001/users/4 \
@@ -98,7 +106,27 @@ curl --request PUT \
 ```
 
 Excluir um usuário
+
 ```shell
 curl --request DELETE \
   --url http://localhost:8001/users/4
+```
+
+Vincular usuário a uma empresa
+
+```shell
+curl --request POST \
+  --url http://localhost:8001/userCompanies \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"user_id": 2,
+	"company_id": 1
+}'
+```
+
+Listar empresas vinculadas a um usuário
+
+```shell
+curl --request GET \
+  --url http://localhost:8001/userCompanies/2
 ```

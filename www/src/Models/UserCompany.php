@@ -48,41 +48,40 @@ class UserCompany {
 
 
    // CREATE
-   public function store()
+   public function create()
    {
-      $sqlQuery = "INSERT INTO $this->table SET
-                        user_id       = :user_id, 
-                        company_id    = :company_id, 
-                        created_at = :created_at";
+      $sql = "INSERT INTO $this->table (user_id, company_id, created_at)
+                     VALUES (?, ?, ?)";
    
-      $stmt = $this->conn->prepare($sqlQuery);
+      $stmt = Model::getConn()->prepare($sql);
    
       // sanitize
-      $this->userId    = trim(strip_tags($this->userId));
-      $this->companyId = trim(strip_tags($this->companyId));
-      $this->createdAt = trim(strip_tags($this->createdAt));
+      $this->userId    = intval($this->userId);
+      $this->companyId = intval($this->companyId);
+      $this->createdAt = date('Y-m-d H:i:s');
       
       // bind data
-      $stmt->bindParam(":user_id", $this->userId);
-      $stmt->bindParam(":company_id", $this->companyId);
-      $stmt->bindParam(":created_at", $this->createdAt);
+      $stmt->bindParam(1, $this->userId);
+      $stmt->bindParam(2, $this->companyId);
+      $stmt->bindParam(3, $this->createdAt);
    
       if($stmt->execute()){
-         return true;
+         $this->id = Model::getConn()->lastInsertId();
+         return $this;
       }
 
-      return false;
+      return null;
    }
 
 
    // DELETE
-   function destroy()
+   function destroy($id)
    {
-      $sqlQuery = "DELETE FROM $this->table WHERE id = ?";
+      $sql = "DELETE FROM $this->table WHERE id = ?";
       
-      $stmt = $this->conn->prepare($sqlQuery);
-
-      $this->id = intval($this->id);
+      $stmt = Model::getConn()->prepare($sql);
+      
+      $this->id = intval($id);
    
       $stmt->bindParam(1, $this->id);
    
@@ -90,7 +89,7 @@ class UserCompany {
          return true;
       }
 
-      return false;
+      return null;
    }
 
 }

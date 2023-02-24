@@ -20,7 +20,7 @@ class Company {
    //ALL
    public function all()
    {
-      $sql = "SELECT * FROM $this->table ORDER BY company_name ASC";
+      $sql = "SELECT * FROM $this->table";
       
       $stmt = Model::getConn()->prepare($sql);
       $stmt->execute();
@@ -39,15 +39,18 @@ class Company {
    {
       // sanitize
       $this->companyName = trim(strip_tags($this->companyName));
-      $this->document    = trim(strip_tags($this->document));
+      $this->document    = preg_replace('/[^0-9]/', '', $this->document);
       $this->address     = trim(strip_tags($this->address));
+      $this->createdAt   = date('Y-m-d H:i:s');
       
-      $sql = "INSERT INTO $this->table (company_name, document, address) VALUES (?, ?, ?)";
+      $sql = "INSERT INTO $this->table (company_name, document, address, created_at) 
+                  VALUES (?, ?, ?, ?)";
    
       $stmt = Model::getConn()->prepare($sql);
       $stmt->bindParam(1, $this->companyName);
       $stmt->bindParam(2, $this->document);
       $stmt->bindParam(3, $this->address);
+      $stmt->bindParam(4, $this->createdAt);
       
       if ($stmt->execute()) {
          $this->id = Model::getConn()->lastInsertId();
@@ -85,33 +88,30 @@ class Company {
    {
       $sql = "UPDATE $this->table 
                      SET
-                        company_name = :company_name, 
-                        document     = :document, 
-                        address      = :address, 
-                        created_at   = :created_at
+                        company_name = ?, 
+                        document     = ?, 
+                        address      = ?
                      WHERE 
-                        id = :id";
+                        id = ?";
    
       $stmt = Model::getConn()->prepare($sql);
    
-      $this->companyName = htmlspecialchars(strip_tags($this->companyName));
-      $this->document    = htmlspecialchars(strip_tags($this->document));
-      $this->address     = htmlspecialchars(strip_tags($this->address));
-      $this->createdAt   = htmlspecialchars(strip_tags($this->createdAt));
-      $this->id          = htmlspecialchars(strip_tags($this->id));
+      $this->companyName = trim(strip_tags($this->companyName));
+      $this->document    = preg_replace('/[^0-9]/', '', $this->document);
+      $this->address     = trim(strip_tags($this->address));
+      $this->id          = intval($id);
    
       // bind data
-      $stmt->bindParam(":company_name", $this->companyName);
-      $stmt->bindParam(":document", $this->document);
-      $stmt->bindParam(":address", $this->address);
-      $stmt->bindParam(":created_at", $this->createdAt);
-      $stmt->bindParam(":id", $this->id);
+      $stmt->bindParam(1, $this->companyName);
+      $stmt->bindParam(2, $this->document);
+      $stmt->bindParam(3, $this->address);
+      $stmt->bindParam(4, $this->id);
    
       if($stmt->execute()){
          return true;
       }
 
-      return false;
+      return null;
    }
 
    //DELETE
@@ -120,16 +120,13 @@ class Company {
       $sql = "DELETE FROM $this->table WHERE id = ?";
       
       $stmt = Model::getConn()->prepare($sql);
-
-      $this->id = intval($this->id);
-   
-      $stmt->bindParam(1, $this->id);
+      $stmt->bindParam(1, $id);
    
       if($stmt->execute()){
          return true;
       }
 
-      return false;
+      return null;
    }
 
 }

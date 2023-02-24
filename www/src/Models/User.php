@@ -49,7 +49,7 @@ class User {
       $stmt = Model::getConn()->prepare($sql);
       $stmt->bindParam(1, $this->name);
       $stmt->bindParam(2, $this->email);
-      $stmt->bindParam(3, $this->phone);
+      $stmt->bindParam(3, preg_replace('/[^0-9]/', '', $this->phone));
       $stmt->bindParam(4, $this->birthday);
       $stmt->bindParam(5, $this->cityName);
       $stmt->bindParam(6, $this->createdAt);
@@ -130,7 +130,7 @@ class User {
 
       $this->id = intval($id);
    
-      $stmt->bindParam(1, $id);
+      $stmt->bindParam(1, $this->id);
    
       if($stmt->execute()){
          return true;

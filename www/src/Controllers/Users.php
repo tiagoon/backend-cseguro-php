@@ -55,4 +55,14 @@ class Users extends Controller {
 
       echo json_encode($user, JSON_UNESCAPED_UNICODE);
    }
+
+   public function update($id)
+   {
+      echo json_encode(['message' => 'Em Breve'], JSON_UNESCAPED_UNICODE);
+   }
+
+   public function delete($id)
+   {
+      echo json_encode(['message' => 'Em Breve'], JSON_UNESCAPED_UNICODE);
+   }
 }

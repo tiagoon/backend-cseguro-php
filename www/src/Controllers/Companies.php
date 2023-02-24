@@ -6,6 +6,7 @@ use App\Core\Controller;
 
 class Companies extends Controller {
 
+   //ALL
    public function index()
    {
       $companyModel = $this->model('Company');
@@ -14,6 +15,7 @@ class Companies extends Controller {
       echo json_encode($companies, JSON_UNESCAPED_UNICODE);
    }
 
+   //FIND BY ID
    public function find($id)
    {
       $companyModel = $this->model('Company');
@@ -34,22 +36,56 @@ class Companies extends Controller {
    {
       $data = $this->getRequestBody();
 
-      $userModel            = $this->model('User');
-      $userModel->name      = $data->name;
-      $userModel->email     = $data->email;
-      $userModel->phone     = $data->phone;
-      $userModel->birthday  = $data->birthday;
-      $userModel->cityName  = $data->city_name;
-      $userModel->createdAt = date('Y-m-d H:i:s');
+      $companyModel               = $this->model('Company');
+      $companyModel->companyName  = $data->company_name;
+      $companyModel->document     = $data->document;
+      $companyModel->address      = $data->address;
+      $companyModel->createdAt    = date('Y-m-d H:i:s');
 
-      $userModel->create();
+      $companyModel->create();
 
-      if ($userModel) {
+      if ($companyModel) {
          http_response_code(201);
-         echo json_encode($userModel);
+         echo json_encode($companyModel);
       } else {
          http_response_code(500);
-         echo json_encode(['message' => 'Erro ao cadastrar usuário']);
+         echo json_encode(['message' => 'Erro ao cadastrar empresa']);
+      }
+
+   }
+
+   //UPDATE
+   public function update($id)
+   {
+      $data = $this->getRequestBody();
+
+      $companyModel               = $this->model('Company');
+      $companyModel->companyName  = $data->company_name;
+      $companyModel->document     = $data->document;
+      $companyModel->address      = $data->address;
+
+      $companyModel->update($id);
+
+      if ($companyModel) {
+         http_response_code(200);
+         echo json_encode(['message' => 'Atualizado com sucesso']);
+      } else {
+         http_response_code(500);
+         echo json_encode(['message' => 'Erro ao atualizar empresa']);
+      }
+   }
+
+   //DELETE
+   public function destroy($id)
+   {
+      $companyModel = $this->model('Company');
+      $company = $companyModel->destroy($id);
+
+      if (!$company) {
+         http_response_code(404);
+         echo json_encode(['message' => 'Empresa não localizada'], JSON_UNESCAPED_UNICODE);
+      } else {
+         echo json_encode(['message' => 'Empresa excluída com sucesso.'], JSON_UNESCAPED_UNICODE);
       }
 
    }
