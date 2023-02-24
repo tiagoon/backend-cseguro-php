@@ -17,9 +17,11 @@ class Router {
         
       $url = $this->parseURL();
 
-      if(file_exists("../App/Controllers/" . ucfirst($url[1]) . ".php")){
+      $removeQueryParam = explode("?", $url[1])[0];
+      
+      if(file_exists("../src/Controllers/" . ucfirst($removeQueryParam) . ".php")){
 
-         $this->controller = ucfirst($url[1]);
+         $this->controller = ucfirst($removeQueryParam);
          unset($url[1]);
 
       }elseif(empty($url[1])){

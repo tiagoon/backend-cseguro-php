@@ -20,13 +20,13 @@ class Company {
    //ALL
    public function all()
    {
-      $sql = "SELECT * FROM $this->table ORDER BY name ASC";
+      $sql = "SELECT * FROM $this->table ORDER BY company_name ASC";
       
       $stmt = Model::getConn()->prepare($sql);
       $stmt->execute();
 
       if ($stmt->rowCount() > 0) {
-         $results = $stmt->fetch(PDO::FETCH_OBJ);
+         $results = $stmt->fetchAll(PDO::FETCH_OBJ);
          
          return $results;
       } else {
@@ -67,19 +67,13 @@ class Company {
       $stmt->bindParam(1, $id);
       
       if ($stmt->execute()) {
-         $user = $stmt->fetch(PDO::FETCH_OBJ);
+         $company = $stmt->fetch(PDO::FETCH_OBJ);
          
-         if (!$user) {
+         if (!$company) {
             return null;
          }
 
-         $this->id          = $user->id;
-         $this->companyName = $user->company_name;
-         $this->document    = $user->document;
-         $this->address     = $user->address;
-         $this->createdAt   = $user->created_at;
-
-         return $this;
+         return $company;
 
       } else {
          return null;

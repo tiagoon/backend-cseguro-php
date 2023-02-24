@@ -2,7 +2,7 @@
    "name": "tiagoon/backend-cseguro-php",
    "autoload": {
       "psr-4": {
-         "App\\": "App/"
+         "App\\": "src/"
       }
    }
 }

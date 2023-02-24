@@ -16,4 +16,8 @@ class Controller{
       return $obj;
    }
 
+   protected function getQueryParams(){
+      return $_GET;
+   }
+
 }

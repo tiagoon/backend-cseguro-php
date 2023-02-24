@@ -4,22 +4,32 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 
-class Users extends Controller {
+class Companies extends Controller {
 
    public function index()
    {
-      $userModel = $this->model('User');
+      $companyModel = $this->model('Company');
+      $companies = $companyModel->all();
+      
+      echo json_encode($companies, JSON_UNESCAPED_UNICODE);
+   }
 
-      $users = $userModel->all();
+   public function find($id)
+   {
+      $companyModel = $this->model('Company');
 
-      if ($users) {
-         http_response_code(204);
+      $company = $companyModel->find($id);
+
+      if (!$company) {
+         http_response_code(404);
+         echo json_encode(['message' => 'Empresa não localizada'], JSON_UNESCAPED_UNICODE);
          exit;
       }
 
-      echo json_encode($users, JSON_UNESCAPED_UNICODE);
+      echo json_encode($company, JSON_UNESCAPED_UNICODE);
    }
 
+   //CREATE
    public function store()
    {
       $data = $this->getRequestBody();
@@ -42,20 +52,5 @@ class Users extends Controller {
          echo json_encode(['message' => 'Erro ao cadastrar usuário']);
       }
 
-   }
-
-   public function find($id)
-   {
-      $userModel = $this->model('User');
-
-      $user = $userModel->find($id);
-
-      if (!$user) {
-         http_response_code(404);
-         echo json_encode(['message' => 'Usuário não localizado'], JSON_UNESCAPED_UNICODE);
-         exit;
-      }
-
-      echo json_encode($user, JSON_UNESCAPED_UNICODE);
    }
 }

@@ -20,15 +20,19 @@ class User {
    public $createdAt;
 
    //All
-   public function all()
+   public function all($queryParams=[])
    {
-      $sql = "SELECT * FROM $this->table ORDER BY name ASC";
+      if (!empty($queryParams['query']) && in_array($queryParams['param'], ['name', 'email'])) {
+         $query = "AND $queryParams[param] LIKE '%$queryParams[query]%'";
+      }
+
+      $sql = "SELECT * FROM $this->table WHERE TRUE $query ORDER BY name ASC";
       
       $stmt = Model::getConn()->prepare($sql);
       $stmt->execute();
 
       if ($stmt->rowCount() > 0) {
-         $results = $stmt->fetch(PDO::FETCH_OBJ);
+         $results = $stmt->fetchAll(PDO::FETCH_OBJ);
          
          return $results;
       } else {
@@ -62,7 +66,7 @@ class User {
    //FIND BY ID
    public function find($id)
    {
-      $sql = "SELECT * FROM $this->table WHERE id = ?";
+      $sql = "SELECT * FROM $this->table WHERE id = ? LIMIT 1";
       
       $stmt = Model::getConn()->prepare($sql);
       $stmt->bindParam(1, $id);
@@ -74,14 +78,7 @@ class User {
             return null;
          }
 
-         $this->id    = $user->id;
-         $this->name  = $user->name;
-         $this->email = $user->email;
-         $this->phone = $user->phone;
-         $this->birthday = $user->birthday;
-         $this->createdAt = $user->created_at;
-
-         return $this;
+         return $user;
 
       } else {
          return null;
@@ -91,17 +88,17 @@ class User {
    //UPDATE
    public function update($id)
    {
-      $sqlQuery = "UPDATE $this->table 
+      $sql = "UPDATE $this->table 
                      SET
                         name       = :name, 
                         email      = :email, 
                         phone      = :phone, 
-                        birth_day  = :birthday,
+                        birthday  = :birthday,
                         city_name  = :city_name
                      WHERE 
                         id = :id";
    
-      $stmt = $this->conn->prepare($sqlQuery);
+      $stmt = Model::getConn()->prepare($sql);
    
       $this->name      = trim(strip_tags($this->name));
       $this->email     = trim(strip_tags($this->email));
@@ -115,7 +112,6 @@ class User {
       $stmt->bindParam(":phone", $this->phone);
       $stmt->bindParam(":birthday", $this->birthday);
       $stmt->bindParam(":city_name", $this->cityName);
-      $stmt->bindParam(":created_at", $this->createdAt);
       $stmt->bindParam(":id", $id);
    
       if($stmt->execute()){
@@ -128,13 +124,13 @@ class User {
    //DELETE
    function destroy($id)
    {
-      $sqlQuery = "DELETE FROM $this->table WHERE id = ?";
+      $sql = "DELETE FROM $this->table WHERE id = ?";
       
-      $stmt = $this->conn->prepare($sqlQuery);
+      $stmt = Model::getConn()->prepare($sql);
 
-      $this->id = htmlspecialchars(strip_tags($this->id));
+      $this->id = intval($id);
    
-      $stmt->bindParam(1, $this->id);
+      $stmt->bindParam(1, $id);
    
       if($stmt->execute()){
          return true;

@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Configurations\Database;
+use App\Core\Model;
 use \PDO;
 
-class User {
+class UserCompany {
 
    // Connection
    private $conn;
 
    // Table
-   private $table = "users_companies";
+   private $table = "user_companies";
 
    // Columns
    public $id;
@@ -19,10 +19,33 @@ class User {
    public $companyId;
    public $createdAt;
 
-   // Db connection
-   public function __construct(Database $db){
-      $this->conn = $db->getConnection();
+
+   //FIND COMPANIES OF USER
+   public function find($id)
+   {
+      $sql = "SELECT uc.id, uc.created_at, u.name, c.company_name, c.document, c.address
+                  FROM $this->table uc
+                  LEFT JOIN users u ON u.id = uc.user_id
+                  LEFT JOIN companies c ON c.id = uc.company_id
+                  WHERE uc.user_id = ?";
+
+      $stmt = Model::getConn()->prepare($sql);
+      $stmt->bindParam(1, $id);
+      
+      if ($stmt->execute()) {
+         $user = $stmt->fetchAll(PDO::FETCH_OBJ);
+         
+         if (!$user) {
+            return null;
+         }
+
+         return $user;
+
+      } else {
+         return null;
+      }
    }
+
 
    // CREATE
    public function store()
@@ -35,9 +58,9 @@ class User {
       $stmt = $this->conn->prepare($sqlQuery);
    
       // sanitize
-      $this->userId    = htmlspecialchars(strip_tags($this->userId));
-      $this->companyId = htmlspecialchars(strip_tags($this->companyId));
-      $this->createdAt = htmlspecialchars(strip_tags($this->createdAt));
+      $this->userId    = trim(strip_tags($this->userId));
+      $this->companyId = trim(strip_tags($this->companyId));
+      $this->createdAt = trim(strip_tags($this->createdAt));
       
       // bind data
       $stmt->bindParam(":user_id", $this->userId);
@@ -51,6 +74,7 @@ class User {
       return false;
    }
 
+
    // DELETE
    function destroy()
    {
@@ -58,7 +82,7 @@ class User {
       
       $stmt = $this->conn->prepare($sqlQuery);
 
-      $this->id = htmlspecialchars(strip_tags($this->id));
+      $this->id = intval($this->id);
    
       $stmt->bindParam(1, $this->id);
    
