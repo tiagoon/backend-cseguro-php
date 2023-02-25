@@ -29,14 +29,19 @@ class Users extends Controller {
       $userModel->cityName  = $data->city_name;
       $userModel->createdAt = date('Y-m-d H:i:s');
 
-      $userModel->create();
+      $response = $userModel->create();
 
-      if ($userModel) {
+      if ($response->id) {
          http_response_code(201);
          echo json_encode($userModel);
+
       } else {
          http_response_code(500);
-         echo json_encode(['message' => 'Erro ao cadastrar usuário']);
+         echo json_encode([
+            'message' => 'Não foi possível cadastrar o usuário',
+            'error'  => $response['error'],
+            'code' => $response['code']
+         ]);
       }
 
    }
@@ -67,27 +72,38 @@ class Users extends Controller {
       $userModel->birthday    = $data->birthday;
       $userModel->cityName    = $data->city_name;
 
-      $userModel->update($id);
+      $response = $userModel->update($id);
 
-      if ($userModel) {
+      if ($response) {
          http_response_code(200);
          echo json_encode(['message' => 'Atualizado com sucesso']);
+
       } else {
          http_response_code(500);
-         echo json_encode(['message' => 'Erro ao atualizar usuário']);
+         echo json_encode([
+            'message' => 'Não foi possível atualizar este usuário',
+            'error'  => $response['error'],
+            'code' => $response['code']
+         ]);
       }
    }
 
    public function delete($id)
    {
       $userModel = $this->model('User');
-      $user = $userModel->destroy($id);
+      $response = $userModel->destroy($id);
 
-      if (!$user) {
+      if ($response == NULL) {
          http_response_code(404);
-         echo json_encode(['message' => 'Não foi possível excluir'], JSON_UNESCAPED_UNICODE);
+         echo json_encode(['message' => 'Não localizamos este usuário']);
+
+      } elseif ($response['error']) {
+         http_response_code(500);
+         echo json_encode($response);
+         
       } else {
-         echo json_encode(['message' => 'Usuário excluído com sucesso.'], JSON_UNESCAPED_UNICODE);
+         echo json_encode(['message' => 'Usuário excluído com sucesso.']);
       }
+
    }
 }

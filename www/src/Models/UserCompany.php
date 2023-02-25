@@ -53,24 +53,24 @@ class UserCompany {
       $sql = "INSERT INTO $this->table (user_id, company_id, created_at)
                      VALUES (?, ?, ?)";
    
-      $stmt = Model::getConn()->prepare($sql);
-   
-      // sanitize
+      //SANITIZE
       $this->userId    = intval($this->userId);
       $this->companyId = intval($this->companyId);
       $this->createdAt = date('Y-m-d H:i:s');
       
-      // bind data
-      $stmt->bindParam(1, $this->userId);
-      $stmt->bindParam(2, $this->companyId);
-      $stmt->bindParam(3, $this->createdAt);
-   
-      if($stmt->execute()){
+      try {
+         $stmt = Model::getConn()->prepare($sql);
+      
+         $stmt->bindParam(1, $this->userId);
+         $stmt->bindParam(2, $this->companyId);
+         $stmt->bindParam(3, $this->createdAt);
+         $stmt->execute();
          $this->id = Model::getConn()->lastInsertId();
          return $this;
+         
+      } catch (\PDOException $e) {
+         return ['error' => $e->getMessage(), 'code' => $e->getCode()];
       }
-
-      return null;
    }
 
 
@@ -79,17 +79,23 @@ class UserCompany {
    {
       $sql = "DELETE FROM $this->table WHERE id = ?";
       
-      $stmt = Model::getConn()->prepare($sql);
-      
       $this->id = intval($id);
-   
-      $stmt->bindParam(1, $this->id);
-   
-      if($stmt->execute()){
-         return true;
-      }
+      
+      try {
+         $stmt = Model::getConn()->prepare($sql);
+         $stmt->execute([$this->id]);
 
-      return null;
+         if ($stmt->rowCount() > 0)
+            return true;
+         else
+            return null;
+         
+      } catch (\PDOException $e) {
+         return [
+            'message' => 'Não foi possível excluir o vínculo',
+            'error' => $e->getMessage(), 
+            'code' => $e->getCode()];
+      }
    }
 
 }

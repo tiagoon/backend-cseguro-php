@@ -26,7 +26,7 @@ class User {
          $query = "AND $queryParams[param] LIKE '%$queryParams[query]%'";
       }
 
-      $sql = "SELECT * FROM $this->table WHERE TRUE $query ORDER BY name ASC";
+      $sql = "SELECT * FROM $this->table WHERE TRUE $query";
       
       $stmt = Model::getConn()->prepare($sql);
       $stmt->execute();
@@ -46,20 +46,22 @@ class User {
       $sql = "INSERT INTO $this->table (name, email, phone, birthday, city_name, created_at)
                            VALUES (?, ?, ?, ?, ?, ?)";
    
-      $stmt = Model::getConn()->prepare($sql);
-      $stmt->bindParam(1, $this->name);
-      $stmt->bindParam(2, $this->email);
-      $stmt->bindParam(3, preg_replace('/[^0-9]/', '', $this->phone));
-      $stmt->bindParam(4, $this->birthday);
-      $stmt->bindParam(5, $this->cityName);
-      $stmt->bindParam(6, $this->createdAt);
-   
-      if ($stmt->execute()) {
+      try {
+
+         $stmt = Model::getConn()->prepare($sql);
+         $stmt->bindParam(1, $this->name);
+         $stmt->bindParam(2, $this->email);
+         $stmt->bindParam(3, preg_replace('/[^0-9]/', '', $this->phone));
+         $stmt->bindParam(4, $this->birthday);
+         $stmt->bindParam(5, $this->cityName);
+         $stmt->bindParam(6, $this->createdAt);
+         
+         $stmt->execute();
          $this->id = Model::getConn()->lastInsertId();
-         return $this;
-      } else {
-         print_r($stmt->errorInfo());
-         return null;
+         return $this;   
+
+      } catch (\PDOException $e) {
+         return ['error' => $e->getMessage(), 'code' => $e->getCode()];
       }
    }
 
@@ -98,27 +100,30 @@ class User {
                      WHERE 
                         id = ?";
    
-      $stmt = Model::getConn()->prepare($sql);
-   
+      //SANITIZE
       $this->name      = trim(strip_tags($this->name));
       $this->email     = trim(strip_tags($this->email));
       $this->phone     = preg_replace('/[^0-9]/', '', $this->phone);
       $this->birthday  = trim(strip_tags($this->birthday));
       $this->cityName  = trim(strip_tags($this->cityName));
       
-      // bind data
-      $stmt->bindParam(1, $this->name);
-      $stmt->bindParam(2, $this->email);
-      $stmt->bindParam(3, $this->phone);
-      $stmt->bindParam(4, $this->birthday);
-      $stmt->bindParam(5, $this->cityName);
-      $stmt->bindParam(6, $id);
-   
-      if($stmt->execute()){
+      try {
+         $stmt = Model::getConn()->prepare($sql);
+
+         $stmt->bindParam(1, $this->name);
+         $stmt->bindParam(2, $this->email);
+         $stmt->bindParam(3, $this->phone);
+         $stmt->bindParam(4, $this->birthday);
+         $stmt->bindParam(5, $this->cityName);
+         $stmt->bindParam(6, $id);
+         $stmt->execute();
+         
          return true;
+
+      } catch (\PDOException $e) {
+         return ['error' => $e->getMessage(), 'code' => $e->getCode()];
       }
 
-      return null;
    }
 
    //DELETE
@@ -126,17 +131,23 @@ class User {
    {
       $sql = "DELETE FROM $this->table WHERE id = ?";
       
-      $stmt = Model::getConn()->prepare($sql);
-
       $this->id = intval($id);
-   
-      $stmt->bindParam(1, $this->id);
-   
-      if($stmt->execute()){
-         return true;
-      }
+      
+      try {
+         $stmt = Model::getConn()->prepare($sql);
+         $stmt->execute([$this->id]);
 
-      return false;
+         if ($stmt->rowCount() > 0)
+            return true;
+         else
+            return null;
+         
+      } catch (\PDOException $e) {
+         return [
+            'message' => 'Não foi possível excluir o usuário',
+            'error' => $e->getMessage(), 
+            'code' => $e->getCode()];
+      }
    }
 
 }
