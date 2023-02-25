@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Validator;
 
 class Companies extends Controller {
 
@@ -36,6 +37,20 @@ class Companies extends Controller {
    {
       $data = $this->getRequestBody();
 
+      //VALIDATE FORM
+      $validate = new Validator();
+      $validate->companyName($data->company_name, true);
+      $validate->document($data->document, true);
+      $validate->address($data->address, true);
+      
+      if($validate->getErrors()){
+         http_response_code(400);
+         echo json_encode($validate->getErrors());
+         exit;
+      }
+
+      
+      //MODEL
       $companyModel               = $this->model('Company');
       $companyModel->companyName  = $data->company_name;
       $companyModel->document     = $data->document;
@@ -59,6 +74,19 @@ class Companies extends Controller {
    {
       $data = $this->getRequestBody();
 
+      //VALIDATE FORM
+      $validate = new Validator();
+      $validate->companyName($data->company_name, true);
+      $validate->document($data->document, true);
+      $validate->address($data->address, true);
+      
+      if($validate->getErrors()){
+         http_response_code(400);
+         echo json_encode($validate->getErrors());
+         exit;
+      }
+
+      //MODEL
       $companyModel               = $this->model('Company');
       $companyModel->companyName  = $data->company_name;
       $companyModel->document     = $data->document;

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Validator;
 
 class Users extends Controller {
 
@@ -21,6 +22,22 @@ class Users extends Controller {
    {
       $data = $this->getRequestBody();
 
+      //VALIDATE FORM
+      $validate = new Validator();
+      $validate->name($data->name, true);
+      $validate->email($data->email, true);
+      $validate->phone($data->phone);
+      $validate->date($data->birthday);
+      $validate->city($data->city_name);
+
+      if($validate->getErrors()){
+         http_response_code(400);
+         echo json_encode($validate->getErrors());
+         exit;
+      }
+
+
+      //MODEL
       $userModel            = $this->model('User');
       $userModel->name      = $data->name;
       $userModel->email     = $data->email;
@@ -65,6 +82,22 @@ class Users extends Controller {
    {
       $data = $this->getRequestBody();
 
+      //VALIDATE FORM
+      $validate = new Validator();
+      $validate->name($data->name, true);
+      $validate->email($data->email, true);
+      $validate->phone($data->phone);
+      $validate->date($data->birthday);
+      $validate->city($data->city_name);
+
+      if($validate->getErrors()){
+         http_response_code(400);
+         echo json_encode($validate->getErrors());
+         exit;
+      }
+
+
+      //MODEL
       $userModel              = $this->model('User');
       $userModel->name        = $data->name;
       $userModel->email       = $data->email;

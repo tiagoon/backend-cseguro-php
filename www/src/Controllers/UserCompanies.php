@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Validator;
 
 class UserCompanies extends Controller {
 
@@ -26,6 +27,19 @@ class UserCompanies extends Controller {
    {
       $data = $this->getRequestBody();
 
+      //VALIDATE FORM
+      $validate = new Validator();
+      $validate->id($data->user_id, true);
+      $validate->id($data->company_id, true);
+      
+      if($validate->getErrors()){
+         http_response_code(400);
+         echo json_encode($validate->getErrors());
+         exit;
+      }
+
+
+      //MODEL
       $userCompanyModel            = $this->model('UserCompany');
       $userCompanyModel->userId    = $data->user_id;
       $userCompanyModel->companyId = $data->company_id;
