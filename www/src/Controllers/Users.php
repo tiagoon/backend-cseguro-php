@@ -32,7 +32,7 @@ class Users extends Controller {
 
       if($validate->getErrors()){
          http_response_code(400);
-         echo json_encode($validate->getErrors());
+         echo json_encode(['message' => implode(", ", $validate->getErrors())]);
          exit;
       }
 
@@ -92,7 +92,7 @@ class Users extends Controller {
 
       if($validate->getErrors()){
          http_response_code(400);
-         echo json_encode($validate->getErrors());
+         echo json_encode(['message' => implode(", ", $validate->getErrors())]);
          exit;
       }
 
